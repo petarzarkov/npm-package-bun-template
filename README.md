@@ -1,4 +1,4 @@
-# npm-package-template
+# npm-package-bun-template
 
 A modern NPM package template powered by [Bun](https://bun.sh), TypeScript, and Biome.
 
@@ -7,8 +7,8 @@ A modern NPM package template powered by [Bun](https://bun.sh), TypeScript, and 
 - **Bun** - Fast runtime, package manager, and test runner
 - **TypeScript** - Strict mode, ESNext target, decorator support
 - **Biome** - Linting, formatting, and import organization
-- **Husky** - Pre-commit linting (lint-staged) and conventional commit message validation
-- **GitHub Actions CI** - Build, lint, and typecheck on push/PR to main
+- **Husky + lint-staged** - Pre-commit linting and conventional commit message validation
+- **GitHub Actions CI** - Build, lint, typecheck, and test on every push/PR; auto version bump and npm publish on main
 - **Semantic versioning** - Auto version bumps based on conventional commits
 - **Environment docs generation** - Auto-generate env variable documentation from `.env.sample` files
 - **Dual package output** - CJS + ESM + type declarations
@@ -41,26 +41,25 @@ bun run typecheck
 | Script | Description |
 |---|---|
 | `bun run dev` | Watch mode development |
-| `bun run start` | Run compiled output |
-| `bun run build` | Compile TypeScript |
+| `bun run build` | Parallel build of CJS, ESM, and type declarations |
 | `bun test` | Run tests (bail on first failure) |
-| `bun test --watch` | Run tests in watch mode |
+| `bun run test:watch` | Run tests in watch mode |
+| `bun run test:cov` | Run tests with coverage |
 | `bun run lint` | Lint and auto-fix with Biome |
 | `bun run format` | Format code with Biome |
 | `bun run typecheck` | Type check without emitting |
 | `bun run version` | Bump version from conventional commits |
 | `bun run version:dry-run` | Preview version bump |
-| `bun run gen:env:docs` | Generate env variable docs |
 | `bun run mod:cost` | Analyze dependency costs |
 
 ## Project Structure
 
 ```
 src/               # Source code
+scripts/           # Utility scripts (versioning, env docs generation)
 dist/              # Compiled output (CJS, ESM, type declarations)
-scripts/           # Utility scripts (versioning, env docs)
-.github/ci.yml     # CI workflow
-.husky/            # Git hooks
+.github/workflows/ # CI workflow
+.husky/            # Git hooks (pre-commit, commit-msg)
 ```
 
 ## Commit Convention
@@ -83,15 +82,19 @@ Run `bun run version` to auto-bump based on the last commit message:
 
 Use `bun run version:dry-run` to preview without making changes.
 
+## CI/CD
+
+The GitHub Actions [workflow](.github/workflows/ci.yml) runs on every push and PR:
+
+1. Install dependencies (with Bun cache)
+2. Build, lint, and typecheck in parallel
+3. Run tests with coverage
+
+On pushes to `main`, it additionally:
+
+4. Auto-bumps the version based on the commit message
+5. Publishes the package to npm
+
 ## License
 
 [MIT](LICENSE)
-
-## Speed
-```sh
-bun run --parallel build lint typecheck
-lint      | Checked 8 files in 8ms. No fixes applied.
-lint      | Done in 165ms
-build     | Done in 484ms
-typecheck | Done in 511ms
-```

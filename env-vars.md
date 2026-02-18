@@ -8,5 +8,5 @@ This document outlines the environment variables required for the project. These
 
 | Variable | Description | Default Value | Source |
 |---|---|---|---|
-| `NODE_ENV` | No description provided. | `local` | .env.sample |
+| `NODE_ENV` | some description | `local` | .env.sample |
 
